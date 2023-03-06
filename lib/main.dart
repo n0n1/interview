@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 void main() {
@@ -27,19 +29,25 @@ class SquareAnimation extends StatefulWidget {
 class SquareAnimationState extends State<SquareAnimation>
     with TickerProviderStateMixin {
   static const squareSize = 50.0;
-  double left = 0.0;
+  double _left = 0.0;
+  final List<Color> _colors = [Colors.red, Colors.green, Colors.blue];
+
+  late Color _currentColor;
 
   @override
   void initState() {
+    _currentColor = _colors[Random().nextInt(_colors.length)];
     super.initState();
   }
 
   void toggle(double value) {
     setState(() {
-      if (left == 0) {
-        left = value - squareSize;
+      _currentColor = _colors[Random().nextInt(_colors.length)];
+
+      if (_left == 0) {
+        _left = value - squareSize;
       } else {
-        left = 0;
+        _left = 0;
       }
     });
   }
@@ -48,60 +56,62 @@ class SquareAnimationState extends State<SquareAnimation>
   Widget build(BuildContext context) {
     double boxHeight = MediaQuery.of(context).size.height * .5;
     double boxWidth = MediaQuery.of(context).size.width;
-    return Column(
+    return Stack(
       children: [
-        SizedBox(
-          height: boxHeight,
-          width: boxWidth,
-          child: Container(
-            color: Colors.white,
-            child: Stack(
-              children: [
-                AnimatedPositioned(
-                  left: left,
-                  top: MediaQuery.of(context).size.height * .5 / 2,
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.fastOutSlowIn,
-                  child: SizedBox(
-                    height: 50,
-                    child: Stack(
-                      children: [
-                        Container(
-                          width: squareSize,
-                          height: squareSize,
-                          decoration: BoxDecoration(
-                            color: Colors.indigo,
-                            border: Border.all(),
-                          ),
-                        )
-                      ],
+        Center(
+          child: SizedBox(
+            height: boxHeight,
+            width: boxWidth,
+            child: Container(
+              color: Colors.white,
+              child: Stack(
+                children: [
+                  AnimatedPositioned(
+                    left: _left,
+                    top: MediaQuery.of(context).size.height * .5 / 2,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.fastOutSlowIn,
+                    child: Container(
+                      width: squareSize,
+                      height: squareSize,
+                      decoration: BoxDecoration(
+                        color: _currentColor,
+                        border: Border.all(),
+                      ),
                     ),
                   ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  onPressed: _left == 0
+                      ? () {
+                          toggle(boxWidth);
+                        }
+                      : null,
+                  child: const Text("To the right"),
+                ),
+                ElevatedButton(
+                  onPressed: _left > 0
+                      ? () {
+                          toggle(boxWidth);
+                        }
+                      : null,
+                  child: const Text("To the left"),
                 ),
               ],
             ),
           ),
-        ),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: left == 0
-                  ? () {
-                      toggle(boxWidth);
-                    }
-                  : null,
-              child: const Text("To the right"),
-            ),
-            ElevatedButton(
-              onPressed: left > 0
-                  ? () {
-                      toggle(boxWidth);
-                    }
-                  : null,
-              child: const Text("To the left"),
-            ),
-          ],
         )
       ],
     );
