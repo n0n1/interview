@@ -28,59 +28,49 @@ class SquareAnimationState extends State<SquareAnimation>
     with TickerProviderStateMixin {
   static const squareSize = 50.0;
   double left = 0.0;
-  double right = 0.0;
-  late AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this);
   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _toLeft() {
+  void toggle(double value) {
     setState(() {
-      left += 10;
-    });
-  }
-
-  void _toRight() {
-    setState(() {
-      left -= 10;
+      if (left == 0) {
+        left = value - squareSize;
+      } else {
+        left = 0;
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    double boxHeight = MediaQuery.of(context).size.height * .5;
+    double boxWidth = MediaQuery.of(context).size.width;
     return Column(
       children: [
         SizedBox(
-          height: MediaQuery.of(context).size.height * .5,
-          width: MediaQuery.of(context).size.width * .8,
+          height: boxHeight,
+          width: boxWidth,
           child: Container(
             color: Colors.white,
             child: Stack(
               children: [
                 AnimatedPositioned(
                   left: left,
-                  right: right,
                   top: MediaQuery.of(context).size.height * .5 / 2,
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.fastOutSlowIn,
                   child: SizedBox(
-                    height: 100,
+                    height: 50,
                     child: Stack(
                       children: [
                         Container(
                           width: squareSize,
                           height: squareSize,
                           decoration: BoxDecoration(
-                            color: Colors.red,
+                            color: Colors.indigo,
                             border: Border.all(),
                           ),
                         )
@@ -96,27 +86,24 @@ class SquareAnimationState extends State<SquareAnimation>
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: _toLeft,
-              child: const Text("To the left"),
-            ),
-            ElevatedButton(
-              onPressed: _toRight,
+              onPressed: left == 0
+                  ? () {
+                      toggle(boxWidth);
+                    }
+                  : null,
               child: const Text("To the right"),
             ),
             ElevatedButton(
-              onPressed: _reset,
-              child: const Text("reset"),
-            )
+              onPressed: left > 0
+                  ? () {
+                      toggle(boxWidth);
+                    }
+                  : null,
+              child: const Text("To the left"),
+            ),
           ],
         )
       ],
     );
-  }
-
-  void _reset() {
-    setState(() {
-      left = .0;
-      right = .0;
-    });
   }
 }
