@@ -30,20 +30,33 @@ class SquareAnimationState extends State<SquareAnimation>
     with TickerProviderStateMixin {
   static const squareSize = 50.0;
   double _left = 0.0;
+  double _top = 0.0;
   final List<Color> _colors = [Colors.red, Colors.green, Colors.blue];
 
+  late dynamic onLeft;
+  late dynamic onRight;
+  late double _width;
   late Color _currentColor;
 
   @override
   void initState() {
     _currentColor = _colors[Random().nextInt(_colors.length)];
+
+    _width = 0.0;
+    onLeft = () {
+      toggle(_width);
+    };
+    onRight = () {
+      toggle(_width);
+    };
     super.initState();
   }
 
   void toggle(double value) {
     setState(() {
       _currentColor = _colors[Random().nextInt(_colors.length)];
-
+      onLeft = null;
+      onRight = null;
       if (_left == 0) {
         _left = value - squareSize;
       } else {
@@ -52,10 +65,14 @@ class SquareAnimationState extends State<SquareAnimation>
     });
   }
 
+  final _defaultDuration = const Duration(milliseconds: 1000);
+
   @override
   Widget build(BuildContext context) {
     double boxHeight = MediaQuery.of(context).size.height * .5;
     double boxWidth = MediaQuery.of(context).size.width;
+    _width = boxWidth;
+    _top = MediaQuery.of(context).size.height * .5 / 2;
     return Stack(
       children: [
         Center(
@@ -68,8 +85,8 @@ class SquareAnimationState extends State<SquareAnimation>
                 children: [
                   AnimatedPositioned(
                     left: _left,
-                    top: MediaQuery.of(context).size.height * .5 / 2,
-                    duration: const Duration(milliseconds: 300),
+                    top: _top,
+                    duration: _defaultDuration,
                     curve: Curves.fastOutSlowIn,
                     child: Container(
                       width: squareSize,
@@ -79,6 +96,16 @@ class SquareAnimationState extends State<SquareAnimation>
                         border: Border.all(),
                       ),
                     ),
+                    onEnd: () {
+                      setState(() {
+                        onLeft = () {
+                          toggle(_width);
+                        };
+                        onRight = () {
+                          toggle(_width);
+                        };
+                      });
+                    },
                   ),
                 ],
               ),
@@ -94,19 +121,11 @@ class SquareAnimationState extends State<SquareAnimation>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ElevatedButton(
-                  onPressed: _left == 0
-                      ? () {
-                          toggle(boxWidth);
-                        }
-                      : null,
+                  onPressed: onRight,
                   child: const Text("To the right"),
                 ),
                 ElevatedButton(
-                  onPressed: _left > 0
-                      ? () {
-                          toggle(boxWidth);
-                        }
-                      : null,
+                  onPressed: onLeft,
                   child: const Text("To the left"),
                 ),
               ],
