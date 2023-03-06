@@ -38,17 +38,21 @@ class SquareAnimationState extends State<SquareAnimation>
   late double _width;
   late Color _currentColor;
 
-  @override
-  void initState() {
-    _currentColor = _colors[Random().nextInt(_colors.length)];
-
-    _width = 0.0;
+  void setupButtons() {
     onLeft = () {
       toggle(_width);
     };
     onRight = () {
       toggle(_width);
     };
+  }
+
+  @override
+  void initState() {
+    _currentColor = _colors[Random().nextInt(_colors.length)];
+    setupButtons();
+    _width = 0.0;
+
     super.initState();
   }
 
@@ -98,12 +102,7 @@ class SquareAnimationState extends State<SquareAnimation>
                     ),
                     onEnd: () {
                       setState(() {
-                        onLeft = () {
-                          toggle(_width);
-                        };
-                        onRight = () {
-                          toggle(_width);
-                        };
+                        setupButtons();
                       });
                     },
                   ),
